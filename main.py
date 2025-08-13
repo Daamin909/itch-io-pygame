@@ -1,5 +1,6 @@
 import random
 import pygame
+import asyncio
 
 pygame.init()
 
@@ -20,7 +21,7 @@ colours = [
 
 fps = 60
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("comicsans", 40)
+font = pygame.font.Font(None, 40)  
 
 def write_text(text, font, color, surface, x, y):
     textobj = font.render(text, True, color)
@@ -28,7 +29,7 @@ def write_text(text, font, color, surface, x, y):
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
 
-def gameloop():
+async def gameloop():
     global win
 
     running = True
@@ -53,7 +54,6 @@ def gameloop():
                        ball_size, ball_size)
 
     boxes = []
-
     boxes_per_row = screen_width // box_width
     num_rows = 3  
 
@@ -73,19 +73,18 @@ def gameloop():
     while running:
         if game_over:
             win.fill(white)
-            write_text("Game Over! Press Enter To Restart.", font=font, color=black,
-                       surface=win, x=screen_width // 2 - 330, y=screen_height // 2)
+            write_text("Game Over! Press Enter To Restart.", font, black,
+                       win, screen_width // 2 - 330, screen_height // 2)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
+                    return False  # Exit game
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        gameloop()
+                        return True  # Restart game
         else:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    return False
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_a] and platform.left > 0:
@@ -128,8 +127,13 @@ def gameloop():
             pygame.draw.ellipse(win, (255, 0, 0), ball)
 
         pygame.display.update()
+        await asyncio.sleep(0)
         clock.tick(fps)
 
-gameloop()
-pygame.quit()
-quit()
+async def main():
+    while await gameloop():
+        pass
+    pygame.quit()
+
+if __name__ == "__main__":
+    asyncio.run(main())
