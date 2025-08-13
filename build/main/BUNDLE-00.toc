@@ -1,0 +1,4 @@
+([('main',
+   '/Users/daaminashai/Personal '
+   'Files/Programming/Projects/Repositories/itch-io-pygame/dist/main',
+   'EXECUTABLE')],)
